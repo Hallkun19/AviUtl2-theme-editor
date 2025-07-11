@@ -1,19 +1,31 @@
-import { defineConfig } from 'vite';
-import react from '@vitejs/plugin-react'; // Reactプラグインのインポートを追加
 import path from 'path';
+import { defineConfig, loadEnv } from 'vite';
+import react from '@vitejs/plugin-react'; // Reactプラグインをインポート
 
-// https://vitejs.dev/config/
-export default defineConfig({
-  plugins: [react()], // Reactプラグインを有効化
+export default defineConfig(({ mode }) => {
+    // 環境変数をロード (この部分は変更なしでOKです)
+    const env = loadEnv(mode, '.', '');
 
-  // ★★★ 最も重要な修正点 ★★★
-  // GitHub Pagesで公開する際のベースパスを指定します。
-  // あなたのリポジトリ名に合わせてください。
-  base: "/AviUtl2-theme-editor/",
+    return {
+      // ★★★ 追加: Reactプラグインを有効にする ★★★
+      // これがないとTSX/JSXが正しくコンパイルされません
+      plugins: [react()],
+      
+      // ★★★ 追加: GitHub Pagesの公開パスを設定 ★★★
+      // これが404エラーを解決する最も重要な設定です！
+      base: '/AviUtl2-theme-editor/', 
 
-  resolve: {
-    alias: {
-      '@': path.resolve(__dirname, './src'), // 一般的に'./src'を指すことが多いです
-    }
-  }
+      // 環境変数の設定
+      // 2つ同じものを定義しているので、1つに絞りました
+      define: {
+        'process.env.GEMINI_API_KEY': JSON.stringify(env.GEMINI_API_KEY)
+      },
+
+      // エイリアスの設定 (変更なし)
+      resolve: {
+        alias: {
+          '@': path.resolve(__dirname, '.'),
+        }
+      }
+    };
 });
