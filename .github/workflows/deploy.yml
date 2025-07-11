@@ -68,7 +68,7 @@ jobs:
         with:
           # ★★★ 変更 ★★★
           # ビルド成果物が格納されるフォルダを指定します (例: build, dist, out)
-          path: './build' 
+          path: './dist' 
 
       # 8. アップロードしたアーティファクトを使ってサイトをデプロイします
       - name: Deploy to GitHub Pages
