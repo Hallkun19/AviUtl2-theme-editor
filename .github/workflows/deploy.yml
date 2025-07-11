@@ -30,9 +30,20 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      # 2. AI機能のファイル内にあるAPIキーの仮の記述を、
-      #    GitHubのSecretsに保存した本物のキーに安全に置き換えます。
-      #    これにより、APIキーがソースコード上に公開されるのを防ぎます。
+      # ★★★ 追加 ★★★
+      # 2. Node.js環境をセットアップします
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20' # プロジェクトに合わせたバージョンを指定
+          cache: 'npm' # npm, yarn, pnpm などに合わせて変更
+
+      # ★★★ 追加 ★★★
+      # 3. 依存パッケージをインストールします
+      - name: Install dependencies
+        run: npm install # yarn install など、お使いのパッケージマネージャに合わせて変更
+
+      # 4. AI機能のファイル内にあるAPIキーの仮の記述を置き換えます
       - name: Replace API Key
         run: |
           if [ -f "components/AIColorModal.tsx" ]; then
@@ -42,18 +53,24 @@ jobs:
           fi
         # secrets.GEMINI_API_KEY という名前でAPIキーをリポジトリのSettings > Secretsに保存してください
 
-      # 3. GitHub Pagesの設定を読み込みます
+      # ★★★ 追加 ★★★
+      # 5. プロジェクトをビルドします
+      - name: Build
+        run: npm run build # package.jsonのscriptsに合わせて変更
+
+      # 6. GitHub Pagesの設定を読み込みます
       - name: Setup Pages
         uses: actions/configure-pages@v5
 
-      # 4. 公開するすべてのファイルをアーティファクトとしてアップロードします
+      # 7. 公開するファイルをアーティファクトとしてアップロードします
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          # ルートディレクトリ全体をアップロードします
-          path: '.'
+          # ★★★ 変更 ★★★
+          # ビルド成果物が格納されるフォルダを指定します (例: build, dist, out)
+          path: './build' 
 
-      # 5. アップロードしたアーティファクトを使ってサイトをデプロイします
+      # 8. アップロードしたアーティファクトを使ってサイトをデプロイします
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
