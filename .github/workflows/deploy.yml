@@ -1,0 +1,59 @@
+name: Deploy to GitHub Pages
+
+# mainブランチにコードがプッシュされた時、または手動で実行した時に動作します
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+# GitHub Pagesへのデプロイに必要な権限を設定します
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# 同じデプロイが同時に複数実行されるのを防ぎます
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  # 'deploy'という名前のジョブ（一連の処理）を定義します
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      # 1. リポジトリのコードをチェックアウトします
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # 2. AI機能のファイル内にあるAPIキーの仮の記述を、
+      #    GitHubのSecretsに保存した本物のキーに安全に置き換えます。
+      #    これにより、APIキーがソースコード上に公開されるのを防ぎます。
+      - name: Replace API Key
+        run: |
+          if [ -f "components/AIColorModal.tsx" ]; then
+            sed -i "s|process.env.API_KEY|'${{ secrets.GEMINI_API_KEY }}'|g" components/AIColorModal.tsx
+          else
+            echo "API Key file not found, skipping replacement."
+          fi
+        # secrets.GEMINI_API_KEY という名前でAPIキーをリポジトリのSettings > Secretsに保存してください
+
+      # 3. GitHub Pagesの設定を読み込みます
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+
+      # 4. 公開するすべてのファイルをアーティファクトとしてアップロードします
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          # ルートディレクトリ全体をアップロードします
+          path: '.'
+
+      # 5. アップロードしたアーティファクトを使ってサイトをデプロイします
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
