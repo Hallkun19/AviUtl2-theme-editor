@@ -1,0 +1,5 @@
+{
+  "name": "AviUtl Style Config Editor",
+  "description": "A real-time GUI editor for AviUtl style.conf files. Visually edit colors, fonts, and layout settings and see a live preview that closely mimics the AviUtl interface.",
+  "requestFramePermissions": []
+}
