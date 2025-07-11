@@ -2,7 +2,6 @@
   "name": "aviutl-style-config-editor",
   "private": true,
   "version": "0.0.0",
-  "homepage": "https://hallkun19.github.io/AviUtl2-theme-editor",
   "type": "module",
   "scripts": {
     "dev": "vite",
